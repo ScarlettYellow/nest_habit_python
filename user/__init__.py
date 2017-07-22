@@ -117,7 +117,7 @@ def new_user():
     return _bad_request, 400, regular_req_headers
   
   # 无错误
-  return json.dumps(user_data), 200, regular_req_headers
+  return json.dumps(user_data, default = oid_handler), 200, regular_req_headers
 
 
 @app.route('/user/<username>', methods = ['PUT'])
@@ -162,11 +162,25 @@ def user_join_nests(username):
   # auth 通过， 防止重复加入
   nests = json.loads(request.data)['nests']
   nests = list(map(lambda id: bson.ObjectId(id), nests))
-
+  
+  cursor = db['_nests'].find(
+    {
+      '_id': {
+        '$in': nests
+      }
+    }
+  )
+  c_length = len(list((c for c in cursor)))
+  
+  if c_length != len(nests):
+    return json.dumps({
+      'error': 'Given nest(s) not exist!'
+    }), 400, regular_req_headers
+  
   result = db['_users'].find_one(
     {
       'username': username,
-      'joined_nests': {
+      'joined_nests._id': {
         '$in': nests
       }
     }
@@ -222,7 +236,7 @@ def user_quit_nests(username):
   result = db['_users'].find_one_and_update(
     {
       'username': username,
-      'joined_nests':
+      'joined_nests._id':
         {
           '$in': nests
         }
@@ -271,14 +285,13 @@ def get_all_user_nests(username):
   if result == None:
     return _no_user_named_xxx, 400, regular_req_headers
   
-  joined_nests_id = result['joined_nests']
+  joined_nests = result['joined_nests']
   
-  print(list(map(lambda id: bson.ObjectId(id), joined_nests_id)))
   
   cursor = db['_nests'].find(
     {
       '_id': {
-        '$in': list(map(lambda id: bson.ObjectId(id), joined_nests_id))
+        '$in': list(map(lambda nest: bson.ObjectId(nest['_id']), joined_nests))
       }
     }
   )

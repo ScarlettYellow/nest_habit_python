@@ -44,7 +44,11 @@ def add_nest(username):
       {'username': username},
       {
         '$push': {
-          'joined_nests': {'$each': [ inserted_id ]}
+          'joined_nests': {
+            '$each': [
+              { '_id': inserted_id, 'kept_days':0 }
+            ]
+          }
         }
       },
       return_document=ReturnDocument.AFTER
@@ -78,7 +82,7 @@ def get_nest(id, username):
   if list_members:
     cursor = db['_users'].find(
       {
-        'joined_nests': {
+        'joined_nests._id': {
           '$in': [ bson.ObjectId(id) ]
         }
       },
@@ -151,6 +155,25 @@ def delete_nest(id, username):
   # {
   #   'msg': 'Delete successfully!'
   # }
+
+  db['_users'].update_many(
+    {
+      # 'username': username,
+      # 'joined_nests._id': {
+      #   '$in': [ bson.ObjectId(id) ]
+      # }
+    },
+    {
+      '$pull': {
+        'joined_nests': {
+          '_id': {
+            '$in': [ bson.ObjectId(id) ]
+          }
+        }
+      }
+    }
+  )
+  
   return json.dumps({
     'msg': 'Delete successfully!'
   }), 200, regular_req_headers
@@ -201,13 +224,17 @@ def remove_member(id, member_username, username):
   result = db['_users'].find_one_and_update(
     {
       'username': member_username,
-      'joined_nests': {
+      'joined_nests._id': {
         '$in': [ bson.ObjectId(id) ]
       }
     },
     {
-      '$pullAll': {
-        'joined_nests': [ bson.ObjectId(id) ]
+      '$pull': {
+        'joined_nests': {
+          '_id': {
+            '$in': [bson.ObjectId(id)]
+          }
+        }
       }
     }
   )
