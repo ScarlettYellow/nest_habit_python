@@ -161,6 +161,8 @@ def user_join_nests(username):
   
   # auth 通过， 防止重复加入
   nests = json.loads(request.data)['nests']
+  nests = list(map(lambda id: bson.ObjectId(id), nests))
+
   result = db['_users'].find_one(
     {
       'username': username,
@@ -180,7 +182,9 @@ def user_join_nests(username):
     { 'username': username },
     {
       '$push': {
-        'joined_nests': { '$each': nests }
+        'joined_nests': {
+          '$each': list(map(lambda nest: { '_id': nest, 'kept_days': 0 }, nests))
+        }
       }
     },
     return_document = ReturnDocument.AFTER
@@ -188,34 +192,64 @@ def user_join_nests(username):
   if result == None:
     return _no_user_named_xxx, 400, regular_req_headers
   
-  
+  db['_nests'].update_many(
+    {
+      '_id': {
+        '$in': nests
+      }
+    },
+    {
+      '$inc':{
+        'members_amount': 1
+      }
+    }
+  )
   
   # 用户存在 all ok!， 生成待返回数据，
   keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>/joined_nests/<id>', methods = ['DELETE'])
+@app.route('/user/<username>/joined_nests', methods = ['DELETE'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-def user_quit_nests(username, id):
+@check_req_body_wrapper('nests')
+def user_quit_nests(username):
 
   # 认证成功
-  # nests = json.loads(request.data)['nests']
+  nests = json.loads(request.data)['nests']
+  nests = list(map(lambda id: bson.ObjectId(id), nests))
   result = db['_users'].find_one_and_update(
     {
       'username': username,
       'joined_nests':
         {
-          '$in': [ id ]
+          '$in': nests
         }
     },
     {
-      '$pullAll': {
-        'joined_nests': [ id ]
+      '$pull': {
+        'joined_nests': {
+          '_id': {
+            '$in': nests
+          }
+        }
       }
     },
     return_document = ReturnDocument.AFTER
+  )
+
+  db['_nests'].update_many(
+    {
+      '_id': {
+        '$in': nests
+      }
+    },
+    {
+      '$inc': {
+        'members_amount': -1
+      }
+    }
   )
   
   if result == None:
@@ -253,7 +287,7 @@ def get_all_user_nests(username):
     'joined_nests': list((c for c in cursor))
   }
   
-  return json.dumps(result, default=oid_handler), 200, regular_req_headers
+  return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
 
 @app.route('/user/<username>/<type>', methods = ['POST'])

@@ -2,8 +2,6 @@ import json
 import bson
 import datetime
 
-from functools import wraps
-
 from flask_init import app
 from flask_init import request
 
@@ -34,10 +32,11 @@ def add_nest(username):
     data_to_insert = dict(zip(keys, values))
     data_to_insert['start_time'] = datetime.datetime.fromtimestamp(int(data_to_insert['start_time']))
     data_to_insert['cover_image'] = ''
+    data_to_insert['open'] = True
     data_to_insert['created_time'] = datetime.datetime.utcnow()
     data_to_insert['creator'] = username
     data_to_insert['owner'] = username
-    data_to_insert['kept_days'] = 0
+    data_to_insert['members_amount'] = 1
     inserted_id = db['_nests'].insert_one(data_to_insert).inserted_id
     
     # 添加到用户
@@ -90,19 +89,146 @@ def get_nest(id, username):
       }
     )
     result['members'] = list((c for c in cursor))
+  if result['members_amount'] != len(result['members']):
+    db['_nests'].update(
+      {
+        '_id': result['_id']
+      },
+      {
+        '$set': {
+          'members_amount': len(result['members'])
+        }
+      }
+    )
+    result['members_amount'] = len(result['members'])
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
 
+@app.route('/nest/<id>', methods = ['PUT', 'POST'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def edit_nest(id, username):
+  update_data = json.loads(request.data)
+  if 'members_amount' in update_data \
+    or 'creator' in update_data \
+    or 'created_time' in update_data \
+    or '_id' in update_data:
+    return json.dumps({
+      'error': 'You can\'t change some param you provide!'
+    }), 400, regular_req_headers
+  
+  if 'start_time' in update_data:
+    update_data['start_time'] = datetime.datetime.fromtimestamp(update_data['start_time'])
+  
+  result = db['_nests'].find_one_and_update(
+    {
+      '_id': bson.ObjectId(id),
+      'owner': username
+    },
+    {
+      '$set': update_data
+    },
+    return_document = ReturnDocument.AFTER
+  )
+  
+  return json.dumps(result, default = oid_handler), 200, regular_req_headers
+
+@app.route('/nest/<id>', methods = ['DELETE'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def delete_nest(id, username):
+  result = db['_nests'].find_one_and_delete(
+    {
+      '_id': bson.ObjectId(id),
+      'owner': username
+    }
+  )
+  if result == None:
+    return json.dumps({
+      'error': 'No nest under your control matched!'
+    }), 403, regular_req_headers
+  # {
+  #   'msg': 'Delete successfully!'
+  # }
+  return json.dumps({
+    'msg': 'Delete successfully!'
+  }), 200, regular_req_headers
+  
 @app.route('/nests', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
+# todo 根据条件查询nest， 还没做
 def filter_nest(username):
   list_members = request.values.get('list_members')
   name = request.values.get('name')
   _id = request.values.get('_id')
   desc = request.values.get('desc')
   
-  print(copyright())
-  
+  return json.dumps({
+    'error': 'This function is in construction!'
+  }), 503, regular_req_headers
   pass
+
+
+@app.route('/nest/<id>/members/<member_username>', methods = ['DELETE'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def remove_member(id, member_username, username):
+  
+  result = db['_nests'].find_one_and_update(
+    {
+      '_id': bson.ObjectId(id),
+      'owner': username
+    },
+    {
+      '$inc': {
+        'members_amount': -1
+      }
+    },
+    return_document = ReturnDocument.AFTER
+  )
+  
+  
+  if result == None:
+    
+    return json.dumps({
+      'error': 'No nest under your control matched!'
+    }), 403, regular_req_headers
+  
+  nest_result = result
+  
+  result = db['_users'].find_one_and_update(
+    {
+      'username': member_username,
+      'joined_nests': {
+        '$in': [ bson.ObjectId(id) ]
+      }
+    },
+    {
+      '$pullAll': {
+        'joined_nests': [ bson.ObjectId(id) ]
+      }
+    }
+  )
+  
+  if result == None:
+    db['_nests'].find_one_and_update(
+      {
+        '_id': bson.ObjectId(id),
+        'owner': username
+      },
+      {
+        '$inc': {
+          'members_amount': 1
+        }
+      },
+      return_document=ReturnDocument.AFTER
+    )
+    return json.dumps({
+      'error': 'No user in this nest matched!'
+    }), 400, regular_req_headers
+  
+  return json.dumps(nest_result, default = oid_handler), 200, regular_req_headers
+  
+  
