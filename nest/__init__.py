@@ -178,7 +178,7 @@ def delete_nest(id, username):
     'msg': 'Delete successfully!'
   }), 200, regular_req_headers
   
-@app.route('/nests', methods = ['GET'])
+@app.route('/nest', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 # todo 根据条件查询nest， 还没做
