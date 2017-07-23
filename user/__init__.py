@@ -38,7 +38,7 @@ from settings import qy_secret_access_key
 
 
 #使用@装饰器来修饰接口
-@app.route('/user/<username>/session', methods = ['POST'])
+@app.route('/api/v1/user/<username>/session', methods = ['POST'])
 @check_req_body_wrapper('password', 'client_id', 'client_secret') # 请求体json中必须包含的字段， 下同
 def login(username):
   # 检查client_id, client_secret的正确性
@@ -62,7 +62,7 @@ def login(username):
 登陆成功会返回
 '''
 
-@app.route('/user/<username>/session', methods = ['DELETE'])
+@app.route('/api/v1/user/<username>/session', methods = ['DELETE'])
 @check_header_wrapper('authorization') # 必须的请求头，不分大小写，下同
 @auth_wrapper # 说明需要登录
 def logout(username):
@@ -71,7 +71,7 @@ def logout(username):
     'msg': 'Logged out successfully!'
   }), 200, regular_req_headers
 
-@app.route('/user/<username>/info', methods = ['GET'])
+@app.route('/api/v1/user/<username>/info', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def get_user_info(username):
@@ -87,7 +87,7 @@ def get_user_info(username):
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
 
-@app.route('/user', methods = ['POST'])
+@app.route('/api/v1/user', methods = ['POST'])
 @check_req_body_wrapper('username', 'password')
 def new_user():
   try:
@@ -121,7 +121,7 @@ def new_user():
   print(user_data)
   return json.dumps(user_data, default = oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>', methods = ['PUT'])
+@app.route('/api/v1/user/<username>', methods = ['PUT'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def edit_user(username):
@@ -153,7 +153,7 @@ def edit_user(username):
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default=oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>/joined_nests', methods = ['POST'])
+@app.route('/api/v1/user/<username>/joined_nests', methods = ['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 @check_req_body_wrapper('nests')
@@ -224,7 +224,7 @@ def user_join_nests(username):
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>/joined_nests', methods = ['DELETE'])
+@app.route('/api/v1/user/<username>/joined_nests', methods = ['DELETE'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 @check_req_body_wrapper('nests')
@@ -292,7 +292,7 @@ def user_quit_nests(username):
 
   return json.dumps(result, default=oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>/joined_nests', methods=['GET'])
+@app.route('/api/v1/user/<username>/joined_nests', methods=['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def get_all_user_nests(username):
@@ -317,7 +317,7 @@ def get_all_user_nests(username):
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
-@app.route('/user/<username>/<type>', methods = ['POST'])
+@app.route('/api/v1/user/<username>/<type>', methods = ['POST'])
 @check_header_wrapper('authorization', 'x-mime-type')
 @auth_wrapper
 def add_assets(username, type):

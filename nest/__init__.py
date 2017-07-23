@@ -19,7 +19,7 @@ from common import check_req_body_wrapper
 from common import check_header_wrapper
 from common import oid_handler
 
-@app.route('/nest', methods = ['POST'])
+@app.route('/api/v1/nest', methods = ['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 @check_req_body_wrapper('name', 'desc', 'members_limit', 'start_time', 'challenge_days', 'open')
@@ -69,7 +69,7 @@ def add_nest(username):
   return json.dumps(data_to_insert, default = oid_handler), 200, regular_req_headers
 
 
-@app.route('/nest/<id>', methods = ['GET'])
+@app.route('/api/v1/nest/<id>', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def get_nest(id, username):
@@ -109,7 +109,7 @@ def get_nest(id, username):
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
 
-@app.route('/nest/<id>', methods = ['PUT', 'POST'])
+@app.route('/api/v1/nest/<id>', methods = ['PUT', 'POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def edit_nest(id, username):
@@ -138,7 +138,7 @@ def edit_nest(id, username):
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
-@app.route('/nest/<id>', methods = ['DELETE'])
+@app.route('/api/v1/nest/<id>', methods = ['DELETE'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def delete_nest(id, username):
@@ -178,7 +178,7 @@ def delete_nest(id, username):
     'msg': 'Delete successfully!'
   }), 200, regular_req_headers
   
-@app.route('/nest', methods = ['GET'])
+@app.route('/api/v1/nest', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 # todo 根据条件查询nest， 还没做
@@ -194,7 +194,7 @@ def filter_nest(username):
   pass
 
 
-@app.route('/nest/<id>/members/<member_username>', methods = ['DELETE'])
+@app.route('/api/v1/nest/<id>/members/<member_username>', methods = ['DELETE'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def remove_member(id, member_username, username):

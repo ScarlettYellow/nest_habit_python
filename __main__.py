@@ -19,6 +19,14 @@ def methods_not_allowed(e):
     'error': 'Method not allowed!',
   }), 405, {'content-type': 'application/json'}
 
+@app.errorhandler(404)
+def methods_not_allowed(e):
+  return json.dumps({
+    'error': 'Not Found!',
+  }), 404, {'content-type': 'application/json'}
+
+
+
 if __name__ == '__main__':
   app.run(host = '127.0.0.1', port = '8081')
 

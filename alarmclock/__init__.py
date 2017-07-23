@@ -20,7 +20,7 @@ from common import check_header_wrapper
 from common import oid_handler
 
 
-@app.route('/alarm_clock', methods = ['POST'])
+@app.route('/api/v1/alarm_clock', methods = ['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 @check_req_body_wrapper('title', 'time', 'repeat', 'music_id', 'duration_level',
@@ -75,7 +75,7 @@ def new_alarm_clock(username):
   return json.dumps(data_to_insert, default = oid_handler), 200, regular_req_headers
 
 
-@app.route('/alarm_clock/<id>', methods = ['GET'])
+@app.route('/api/v1/alarm_clock/<id>', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def get_alarm_clock(id, username):
@@ -94,7 +94,7 @@ def get_alarm_clock(id, username):
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
-@app.route('/alarm_clock/<id>', methods = ['PUT', 'POST'])
+@app.route('/api/v1/alarm_clock/<id>', methods = ['PUT', 'POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def edit_alarm_clock(id, username):
