@@ -1,7 +1,7 @@
 # 鸟窝习惯-接口文档
 ## APIs Document
 
-制定者： Faraway <hzylovelyl@gmail.com>
+制定者： Faraway \<hzylovelyl@gmail.com\>
 
 **除非特别指出，本文档所有接口 `content-type` 均为 `application/json`**
 
@@ -113,7 +113,7 @@ Response 以如下形式返回，其中 `error` 字段**当且仅当**存在错�
 
 ##### 登录
 
-* url: '/user/<username>/session' 'POST'
+* url: '/user/\<username\>/session' 'POST'
 * json字段: 'password', 'client_id', 'client_secret'
 
 req:
@@ -135,7 +135,7 @@ res:
 
 ##### 登出
 
-* url: '/user/<username>/session' 'DELETE'
+* url: '/user/\<username\>/session' 'DELETE'
 * 请求头 'Authorization'
 * json字段: null
 
@@ -146,11 +146,11 @@ res:
 }
 ```
 
-> 任何需要验证的接口都需要这个 token
+\> 任何需要验证的接口都需要这个 token
 
 ##### info
 
-* url: '/user/<username>/info' 'GET'
+* url: '/user/\\<username\\>/info' 'GET'
 * 请求头 'Authorization'
 * json字段: null
 
@@ -219,9 +219,9 @@ res:
 
 
 ##### 加入鸟窝
-url '/user/<username>/joined_nests' 'POST'
+url '/user/\<username\>/joined_nests' 'POST'
 * 请求头 'Authorization'
-* json字段: 'nests <Array.<nest_id>>'
+* json字段: 'nests \<Array.\<nest_id\>\>'
 req:
 ```json
 {
@@ -253,9 +253,9 @@ res:
 ```
 
 ##### 退出鸟窝
-url '/user/<username>/joined_nests' 'DELETE'
+url '/user/\<username\>/joined_nests' 'DELETE'
 * 请求头 'Authorization'
-* json字段: 'nests <Array.<nest_id>>'
+* json字段: 'nests \<Array.\<nest_id\>\>'
 req:
 ```json
 {
@@ -267,7 +267,7 @@ res:
 鸟窝列表，和上面一样
 
 ##### 列出鸟窝
-url '/user/<username>/joined_nests' 'GET'
+url '/user/\<username\>/joined_nests' 'GET'
 * 请求头 'Authorization'
 
 res:
@@ -275,7 +275,7 @@ res:
 
 
 ##### 上传一个资源
-url '/user/<username>/<type>' 'POST'
+url '/user/\<username\>/\<type\>' 'POST'
 * 请求头 'Authorization', 'X-Mime-Type'
 * 请求体 整个请求体就是文件
 
@@ -332,7 +332,7 @@ res:
 ```
 
 ##### 修改鸟窝
-* url '/nest/<id>' 'POST' id就是上面的_id
+* url '/nest/\<id\>' 'POST' id就是上面的_id
 * 请求头 'Authorization'
 * 请求体 要修改的数据
 
@@ -347,7 +347,7 @@ res:
 完整鸟窝信息
 
 ##### 删除鸟窝
-* url '/nest/<id>' 'DELETE' id就是上面的_id
+* url '/nest/\<id\>' 'DELETE' id就是上面的_id
 * 请求头 'Authorization'
 
 res:
@@ -358,7 +358,7 @@ res:
 ```
 
 ##### 获取鸟窝信息
-* url '/nest/<id>?list_members=1' 'GET' id就是上面的_id
+* url '/nest/\<id\>?list_members=1' 'GET' id就是上面的_id
 * 请求头 'Authorization'
 
 注：当list_members为非空字符串时，会列出所有成员
@@ -406,9 +406,124 @@ res:
 ```
 
 ##### 踢人
-* url '/nest/<id>/members/<member_username>' 'DELETE'
+* url '/nest/\<id\>/members/\<member_username\>' 'DELETE'
 * 请求头 'Authorization'
 
 req:
 修改后的完整鸟窝信息
 
+
+
+#### 闹钟的接口
+
+##### 新建闹钟
+* url '/nest/\<id\>/members/\<member_username\>' 'DELETE'
+* 请求头 'Authorization'
+* 请求体json 'title', 'time', 'repeat', 'music_id', 'duration_level',
+'nap_level', 'volume_level', 'bind_to_nest', 'willing_music',
+'willing_text'
+
+req:
+```json
+{
+    "title" : "waaaaaaa",
+    "repeat" : [
+        0,
+        1,
+        3,
+        5,
+        6
+    ],
+    "music_id" : "",
+    "duration_level" : 1,
+    "volume_level" : 1,
+    "nap_level" : 1,
+    "bind_to_nest" : "",
+    "willing_music" : true,
+    "willing_text" : true,
+    "time" : [
+        7,
+        0
+    ]
+}
+```
+
+res:
+```json
+{
+    "title": "waaaaaaa",
+    "time": [
+        7,
+        0
+    ],
+    "repeat": [
+        0,
+        1,
+        3,
+        5,
+        6
+    ],
+    "music_id": "",
+    "duration_level": 1,
+    "nap_level": 1,
+    "volume_level": 1,
+    "bind_to_nest": "",
+    "willing_music": true,
+    "willing_text": true,
+    "created_time": 1500775910,
+    "owner": "far",
+    "_id": "59747666f6ded6056e2499ec"
+}
+```
+
+
+##### 根据id 获取
+* url '/api/v1/alarm_clock/\<id\>' 'GET'
+* 请求头 'Authorization'
+
+res:
+```json
+{
+    "_id": "59747666f6ded6056e2499ec",
+    "title": "waaaaaaa",
+    "time": [
+        7,
+        0
+    ],
+    "repeat": [
+        0,
+        1,
+        3,
+        5,
+        6
+    ],
+    "music_id": "",
+    "duration_level": 1,
+    "nap_level": 1,
+    "volume_level": 1,
+    "bind_to_nest": "",
+    "willing_music": true,
+    "willing_text": true,
+    "created_time": 1500775910,
+    "owner": "far"
+}
+```
+
+##### 删除修改和nest一样
+
+* url '/api/v1/alarm_clock/\<id\>' 'PUT' 'POST' 'DELETE'
+* 请求头 'Authorization'
+
+
+##### 特殊！根据目标用户名和目标鸟窝id获取闹钟
+
+这个功能是用来检验某用户是否有绑定到指定鸟窝的闹钟，从而确定能否设置提醒
+
+* url '/api/v1/alarm_clock?target_user=<target_username>&target_nest=<target_nest_id>' 'GET'
+* 请求头 'Authorization'
+
+如果没有返回400，如果有返回200和闹钟信息
+
+
+
+#### 提醒相关
