@@ -59,11 +59,6 @@ def login(username):
         return _no_user_named_xxx, 400, regular_req_headers
 
 
-'''
-登陆成功会返回
-'''
-
-
 @app.route('/api/v1/user/<username>/session', methods=['DELETE'])
 @check_header_wrapper('authorization')  # 必须的请求头，不分大小写，下同
 @auth_wrapper  # 说明需要登录
@@ -346,12 +341,34 @@ def get_all_user_alarm_clock(username):
     return json.dumps(result, default=oid_handler), 200, regular_req_headers
 
 
-@app.route('/api/v1/user/<username>/reminds', methods=['GET'])
+@app.route('/api/v1/user/<username>/reminds_on_me', methods=['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-def get_all_reminds(username):
-    pass
+def get_all_reminds_on_me(username):
+    cursor = db['_reminds'].find(
+        {
+            'target_username': username
+        }
+    )
+    result = {
+        'reminds': list((c for c in cursor))
+    }
+    return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
+@app.route('/api/v1/user/<username>/reminds_by_me', methods=['GET'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def get_all_reminds_by_me(username):
+    cursor = db['_reminds'].find(
+        {
+            'owner': username
+        }
+    )
+    result = {
+        'reminds': list((c for c in cursor))
+    }
+    
+    return json.dumps(result, default=oid_handler), 200, regular_req_headers
 
 @app.route('/api/v1/user/<username>/<type>', methods=['POST'])
 @check_header_wrapper('authorization', 'x-mime-type')
@@ -433,4 +450,22 @@ def add_assets(username, type):
     return json.dumps(dict(zip(keys, values)), default=oid_handler), 200, regular_req_headers
 
 
-
+@app.route('/api/v1/user/<username>/nest/<nest_id>/punches', methods=['GET'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def get_punches(username, nest_id):
+    
+    cursor = db['_punches'].find(
+        {
+            'username': username,
+            'target_nest': bson.ObjectId(nest_id)
+        }
+    )
+    
+    punches = list((c for c in cursor))
+    
+    days = list(map(lambda punch: punch['day'], punches))
+    
+    return json.dumps({
+        'days': days
+    }), 200, regular_req_headers

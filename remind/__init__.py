@@ -7,11 +7,8 @@ from flask_init import request
 
 from database import db
 from database import errors
-from database import ReturnDocument
 
-from common import _unauthorized_body
 from common import _bad_request
-from common import _no_user_named_xxx
 from common import regular_req_headers
 
 from common import auth_wrapper
@@ -59,5 +56,23 @@ def add_reminds(username):
     # 无错误
     return json.dumps(data_to_insert, default=oid_handler), 200, regular_req_headers
 
-
+@app.route('/api/v1/remind/<id>', methods=['DELETE'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def remove_reminds(username, id):
+    result = db['_reminds'].delete_one(
+        {
+            'owner': username,
+            '_id': bson.ObjectId(id)
+        }
+    )
+    
+    if result.deleted_count == 0:
+        return json.dumps({
+            'error': 'No remind matched!'
+        }), 400, regular_req_headers
+    
+    return json.dumps({
+        'msg': 'Delete successfully!'
+    }), 200, regular_req_headers
 

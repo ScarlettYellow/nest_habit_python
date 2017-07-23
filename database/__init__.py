@@ -11,9 +11,12 @@
 
 
 from pymongo import MongoClient
+from pymongo import DESCENDING
+from pymongo import ASCENDING
 from pymongo import errors
 from pymongo import ReturnDocument
 
 client = MongoClient('139.198.11.28', 27017)
 
 db = client['nesthabit']
+

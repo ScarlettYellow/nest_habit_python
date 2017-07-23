@@ -8,8 +8,8 @@ from flask_init import request
 from database import db
 from database import errors
 from database import ReturnDocument
+from database import DESCENDING
 
-from common import _unauthorized_body
 from common import _bad_request
 from common import _no_user_named_xxx
 from common import regular_req_headers
@@ -75,7 +75,11 @@ def add_nest(username):
 @auth_wrapper
 def get_nest(id, username):
     # query user info
-    result = db['_nests'].find_one({'_id': bson.ObjectId(id)})
+    result = db['_nests'].find_one(
+        {
+            '_id': bson.ObjectId(id)
+        }
+    )
     if result == None:
         return _no_user_named_xxx, 400, regular_req_headers
     
@@ -90,10 +94,31 @@ def get_nest(id, username):
             projection={
                 '_id': False,
                 'created_time': False,
-                'password': False
+                'password': False,
+                'uploaded_musics': False,
+                'alarm_clocks': False
             }
         )
-        result['members'] = list((c for c in cursor))
+        limit = request.values.get('limit')
+        if limit:
+            try:
+                limit = int(limit)
+            except:
+                return _bad_request, 400, regular_req_headers
+            
+            cursor = cursor.limit()
+        
+            
+        def remove_other_nest(user_info):
+            
+            print(user_info)
+            user_info['joined_nests'] = list(filter(
+                lambda nest: nest['_id'] == bson.ObjectId(id),
+                user_info['joined_nests']
+            ))
+            return user_info
+            
+        result['members'] = list((remove_other_nest(c) for c in cursor))
     if result['members_amount'] != len(result['members']):
         db['_nests'].update(
             {
@@ -263,3 +288,44 @@ def remove_member(id, member_username, username):
     
     return json.dumps(nest_result, default=oid_handler), 200, regular_req_headers
 
+@app.route('/api/v1/nest/<id>/chat_log', methods=['GET'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def get_chat_log(id, username):
+    
+    result = db['_users'].find_one(
+        {
+            'username': username,
+            'joined_nests._id': {
+                '$in': [ bson.ObjectId(id) ]
+            }
+
+        }
+    )
+
+    if result == None:
+        return json.dumps({
+            'error': 'Forbidden!'
+        }), 403, regular_req_headers
+    
+    cursor = db['_chat_log'].find(
+        {
+            'target_nest': bson.ObjectId(id)
+        }
+    ).sort('time', direction = DESCENDING)
+
+    limit = request.values.get('limit')
+    if limit:
+        try:
+            limit = int(limit)
+        except:
+            return _bad_request, 400, regular_req_headers
+
+        cursor = cursor.limit(limit)
+    
+    logs = list((c for c in cursor))
+    
+    return json.dumps({
+        'chat_log': logs
+    }, default=oid_handler), 200, regular_req_headers
+    

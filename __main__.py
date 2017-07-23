@@ -7,6 +7,8 @@ import user
 import nest
 import alarmclock
 import remind
+import punch
+import chat_log
 
 
 @app.errorhandler(500)
