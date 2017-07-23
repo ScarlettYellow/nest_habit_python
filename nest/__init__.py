@@ -181,7 +181,7 @@ def delete_nest(id, username):
 @app.route('/api/v1/nest', methods = ['GET'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-# todo 根据条件查询nest， 还没做
+# todo 根据条件查询nest，还没做
 def filter_nest(username):
   list_members = request.values.get('list_members')
   name = request.values.get('name')

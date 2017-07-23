@@ -105,3 +105,55 @@ def edit_alarm_clock(id, username):
     return json.dumps({
       'error': 'You can\'t change some param you provide!'
     }), 400, regular_req_headers
+
+  result = db['_alarm_clocks'].find_one_and_update(
+    {
+      '_id': bson.ObjectId(id),
+      'owner': username
+    },
+    {
+      '$set': update_data
+    },
+    return_document=ReturnDocument.AFTER
+  )
+
+  return json.dumps(result, default=oid_handler), 200, regular_req_headers
+  
+  
+@app.route('/api/v1/alarm_clock/<id>', methods = ['DELETE'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def delete_alarm_clock(id, username):
+  result = db['_alarm_clocks'].find_one_and_delete(
+    {
+      '_id': bson.ObjectId(id),
+      'owner': username
+    }
+  )
+  if result == None:
+    return json.dumps({
+      'error': 'No alarm clock under your control matched!'
+    }), 403, regular_req_headers
+  # {
+  #   'msg': 'Delete successfully!'
+  # }
+  
+  db['_users'].update_many(
+    {
+      # 'username': username,
+      # 'joined_nests._id': {
+      #   '$in': [ bson.ObjectId(id) ]
+      # }
+    },
+    {
+      '$pull': {
+        'alarm_clocks': {
+          '$in': [ bson.ObjectId(id) ]
+        }
+      }
+    }
+  )
+  
+  return json.dumps({
+    'msg': 'Delete successfully!'
+  }), 200, regular_req_headers

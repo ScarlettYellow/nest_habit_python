@@ -317,6 +317,29 @@ def get_all_user_nests(username):
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
 
+@app.route('/api/v1/user/<username>/alarm_clocks', methods=['GET'])
+@check_header_wrapper('authorization')
+@auth_wrapper
+def get_all_user_alarm_clock(username):
+  result = db['_users'].find_one({'username': username})
+  if result == None:
+    return _no_user_named_xxx, 400, regular_req_headers
+  
+  alarm_clocks = result['alarm_clocks']
+  
+  cursor = db['_alarm_clocks'].find(
+    {
+      '_id': {
+        '$in':  alarm_clocks
+      }
+    }
+  )
+  
+  result = {
+    'alarm_clocks': list((c for c in cursor))
+  }
+  return json.dumps(result, default=oid_handler), 200, regular_req_headers
+
 @app.route('/api/v1/user/<username>/<type>', methods = ['POST'])
 @check_header_wrapper('authorization', 'x-mime-type')
 @auth_wrapper
