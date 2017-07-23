@@ -22,17 +22,17 @@ from common import oid_handler
 @app.route('/nest', methods = ['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-@check_req_body_wrapper('name', 'desc', 'members_limit', 'start_time', 'challenge_days')
+@check_req_body_wrapper('name', 'desc', 'members_limit', 'start_time', 'challenge_days', 'open')
 def add_nest(username):
   json_req_data = json.loads(request.data)
   try:
     # 新建
-    keys = ['name', 'desc', 'members_limit', 'start_time', 'challenge_days']
+    keys = ['name', 'desc', 'members_limit', 'start_time', 'challenge_days', 'open']
     values = map(lambda key: json_req_data[key], keys)
     data_to_insert = dict(zip(keys, values))
     data_to_insert['start_time'] = datetime.datetime.fromtimestamp(int(data_to_insert['start_time']))
     data_to_insert['cover_image'] = ''
-    data_to_insert['open'] = True
+    # data_to_insert['open'] = True
     data_to_insert['created_time'] = datetime.datetime.utcnow()
     data_to_insert['creator'] = username
     data_to_insert['owner'] = username
@@ -198,6 +198,11 @@ def filter_nest(username):
 @check_header_wrapper('authorization')
 @auth_wrapper
 def remove_member(id, member_username, username):
+  if member_username == username:
+    return json.dumps({
+      'error': 'You can\'t remove yourself!'
+    }), 400, regular_req_headers
+  
   
   result = db['_nests'].find_one_and_update(
     {
@@ -257,5 +262,4 @@ def remove_member(id, member_username, username):
     }), 400, regular_req_headers
   
   return json.dumps(nest_result, default = oid_handler), 200, regular_req_headers
-  
-  
+

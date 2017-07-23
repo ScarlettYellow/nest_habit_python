@@ -132,7 +132,7 @@ def check_req_body_wrapper(*keys):
           return fn(*args, **kwargs)
         else:
           return _bad_request, 400, regular_req_headers
-      except():
+      except:
         return _bad_request, 400, regular_req_headers
     return wrapped
   return dec

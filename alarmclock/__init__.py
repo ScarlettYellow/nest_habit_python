@@ -105,5 +105,3 @@ def edit_alarm_clock(id, username):
     return json.dumps({
       'error': 'You can\'t change some param you provide!'
     }), 400, regular_req_headers
-  
-  

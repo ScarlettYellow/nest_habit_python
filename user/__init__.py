@@ -37,9 +37,9 @@ from settings import qy_access_key
 from settings import qy_secret_access_key
 
 
-
+#使用@装饰器来修饰接口
 @app.route('/user/<username>/session', methods = ['POST'])
-@check_req_body_wrapper('password', 'client_id', 'client_secret')
+@check_req_body_wrapper('password', 'client_id', 'client_secret') # 请求体json中必须包含的字段， 下同
 def login(username):
   # 检查client_id, client_secret的正确性
   json_req_data = json.loads(request.data)
@@ -58,17 +58,18 @@ def login(username):
     }), 200, regular_req_headers
   else:
     return _no_user_named_xxx, 400, regular_req_headers
-  
+'''
+登陆成功会返回
+'''
 
 @app.route('/user/<username>/session', methods = ['DELETE'])
-@check_header_wrapper('authorization')
-@auth_wrapper
+@check_header_wrapper('authorization') # 必须的请求头，不分大小写，下同
+@auth_wrapper # 说明需要登录
 def logout(username):
   # 先做个假的吧，不会有人知道的
   return json.dumps({
     'msg': 'Logged out successfully!'
   }), 200, regular_req_headers
-
 
 @app.route('/user/<username>/info', methods = ['GET'])
 @check_header_wrapper('authorization')
@@ -85,7 +86,6 @@ def get_user_info(username):
   keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
-
 
 @app.route('/user', methods = ['POST'])
 @check_req_body_wrapper('username', 'password')
@@ -104,6 +104,7 @@ def new_user():
     user_data['uploaded_musics'] = []
     user_data['alarm_clocks'] = []
     user_data['avatar'] = ''
+    user_data['nickname'] = ''
     
     db['_users'].insert_one(user_data)
   
@@ -117,8 +118,8 @@ def new_user():
     return _bad_request, 400, regular_req_headers
   
   # 无错误
+  print(user_data)
   return json.dumps(user_data, default = oid_handler), 200, regular_req_headers
-
 
 @app.route('/user/<username>', methods = ['PUT'])
 @check_header_wrapper('authorization')
@@ -150,8 +151,7 @@ def edit_user(username):
   # all ok!， 生成待返回数据，
   keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
   values = list(map(lambda key: result[key], keys))
-  return json.dumps(dict(zip(keys, values))), 200, regular_req_headers
-
+  return json.dumps(dict(zip(keys, values)), default=oid_handler), 200, regular_req_headers
 
 @app.route('/user/<username>/joined_nests', methods = ['POST'])
 @check_header_wrapper('authorization')
@@ -271,11 +271,26 @@ def user_quit_nests(username):
       'error': 'No user or nest matched!'
     }), 400, regular_req_headers
   
-  # 更新成功，生成响应
-  keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
-  values = list(map(lambda key: result[key], keys))
-  return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
+  # # 更新成功，生成响应
+  # keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
+  # values = list(map(lambda key: result[key], keys))
+  # return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
 
+  joined_nests = result['joined_nests']
+
+  cursor = db['_nests'].find(
+    {
+      '_id': {
+        '$in': list(map(lambda nest: bson.ObjectId(nest['_id']), joined_nests))
+      }
+    }
+  )
+
+  result = {
+    'joined_nests': list((c for c in cursor))
+  }
+
+  return json.dumps(result, default=oid_handler), 200, regular_req_headers
 
 @app.route('/user/<username>/joined_nests', methods=['GET'])
 @check_header_wrapper('authorization')
@@ -301,7 +316,6 @@ def get_all_user_nests(username):
   }
   
   return json.dumps(result, default = oid_handler), 200, regular_req_headers
-
 
 @app.route('/user/<username>/<type>', methods = ['POST'])
 @check_header_wrapper('authorization', 'x-mime-type')
@@ -371,6 +385,13 @@ def add_assets(username, type):
     return _no_user_named_xxx, 400, regular_req_headers
   
   # 生成响应
+  if type == 'uploaded_musics':
+    result = {
+      '_id': inserted_id,
+      'url': url
+    }
+    return json.dumps(result, default = oid_handler), 200, regular_req_headers
+  
   keys = list(filter(lambda key: key not in ['_id', 'password', 'created_time'], result.keys()))
   values = list(map(lambda key: result[key], keys))
   return json.dumps(dict(zip(keys, values)), default = oid_handler), 200, regular_req_headers
