@@ -16,8 +16,12 @@ from common import check_req_body_wrapper
 from common import check_header_wrapper
 from common import oid_handler
 
+@app.route('/api/v1/remind', methods=['GET'])
+def test():
+    return 'hehehehehe'
 
-@app.route('/api/v1/remind_', methods=['POST'])
+
+@app.route('/api/v1/remind', methods=['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 @check_req_body_wrapper('music_id', 'text', 'target_username',
@@ -56,7 +60,7 @@ def add_reminds(username):
     # 无错误
     return json.dumps(data_to_insert, default=oid_handler), 200, regular_req_headers
 
-@app.route('/api/v1/remind_/<id>', methods=['DELETE'])
+@app.route('/api/v1/remind/<id>', methods=['DELETE'])
 @check_header_wrapper('authorization')
 @auth_wrapper
 def remove_reminds(username, id):
