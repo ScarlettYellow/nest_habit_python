@@ -74,4 +74,17 @@ def punch(username):
     
     data_to_insert['_id'] = insert_id
     
+    db['__users'].find_one_and_update(
+        {
+            'username': username,
+            'joined_nests._id': {
+                '$in': [ bson.ObjectId(json_data['target_nest']) ]
+            }
+        },
+        {
+            '$inc': {
+                'joined_nests.kept_days': 1
+            }
+        }
+    )
     return json.dumps(data_to_insert, default = oid_handler), 200, regular_req_headers

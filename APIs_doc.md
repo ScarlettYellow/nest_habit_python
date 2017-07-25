@@ -527,3 +527,16 @@ res:
 
 
 #### 提醒相关
+
+##### 新建提醒
+* url '/api/v1/remind' 'POST'
+* 请求头 'Authorization'
+* 请求体json 'music_id', 'text', 'target_username',
+            'target_alarm_clock', 'start_time',
+            'end_time', 'from_nest'
+
+
+res:
+```json
+
+```
