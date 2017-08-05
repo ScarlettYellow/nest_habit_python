@@ -536,7 +536,124 @@ res:
             'end_time', 'from_nest'
 
 
+req:
+
+我要先恢复数据库
+
+res:
+
+完整提醒信息
+
+##### 移除提醒
+* url '/api/v1/remind/\<id\>' 'GET'
+* 请求头 'Authorization'
+
 res:
 ```json
-
+{
+    "msg": "Delete successfully!"
+}
 ```
+
+##### 我的提醒(被)
+* url '/api/v1/user/<username>/reminds_on_me', 'GET'
+* 请求头 'Authorization'
+
+res:
+```
+    'reminds': [
+        {},
+        // 提醒完整信息列表
+    ]
+```
+
+##### 我创建的提醒
+* url '/api/v1/user/<username>/reminds_by_me', 'GET'
+* 请求头 'Authorization'
+
+res:
+```
+    'reminds': [
+        {},
+        // 提醒完整信息列表
+    ]
+```
+
+#### 消息相关
+
+##### 发送一条消息
+* url '/api/v1/chat_log' 'POST'
+* 请求头 'Authorization'
+* 请求体json 'value', 'target_nest'
+
+req:
+```
+{
+    "value": "hehehe",
+    "target_nest": "" // 一长串id
+}
+```
+
+res:
+
+消息的完整内容
+
+##### 获取某个鸟窝所有的消息
+* url '/api/v1/nest/<id>/chat_log', 'GET'
+* 请求头 'Authorization'
+
+
+res:
+```
+{
+    "chat_log": [
+        {},
+        {},
+        {} // 消息内容
+    ]
+}
+```
+
+#### 打卡相关
+
+##### 打卡
+* url /api/v1/punch','POST'
+* 请求头 'Authorization'
+* 请求体json 'target_nest'
+
+req:
+```
+{
+    "target_nest": "" //nest id
+}
+```
+
+res:
+
+这次打卡的详情消息
+
+```js
+{
+    'target_nest': 'id'
+    'operate_time': time // 打卡时间,
+    'username': '',
+    'day': '%Y%m%d' // 格式时间
+}
+```
+
+##### 获取某鸟窝打卡日期数组
+
+* url /api/v1/user/<username>/nest/<nest_id>/punches, GET
+* 请求头 'Authorization'
+
+res
+```js
+{
+    'days': [
+        '%Y%m%d',
+        '%Y%m%d',
+        ...
+    ]
+}
+```
+
