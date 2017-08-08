@@ -370,10 +370,10 @@ def get_all_reminds_by_me(username):
     
     return json.dumps(result, default=oid_handler), 200, regular_req_headers
 
-@app.route('/api/v1/user/<username>/<type>', methods=['POST'])
+@app.route('/api/v1/user/<username>/<type>/<music_name>', methods=['POST'])
 @check_header_wrapper('authorization', 'x-mime-type')
 @auth_wrapper
-def add_assets(username, type):
+def add_assets(username, type, music_name):
     # 配置青云服务器
     config = Config(qy_access_key, qy_secret_access_key)
     service = QingStor(config)
@@ -405,6 +405,7 @@ def add_assets(username, type):
         # 更新数据库
         inserted_id = db['_musics'].insert_one({
             'url': url,
+            'music_name': music_name,
             'created_time': datetime.datetime.utcnow(),
             'creator': username
         }).inserted_id
@@ -441,6 +442,7 @@ def add_assets(username, type):
     if type == 'uploaded_musics':
         result = {
             '_id': inserted_id,
+            'name': music_name,
             'url': url
         }
         return json.dumps(result, default=oid_handler), 200, regular_req_headers

@@ -275,11 +275,14 @@ res:
 
 
 ##### 上传一个资源
-url '/user/\<username\>/\<type\>' 'POST'
+url '/user/\<username\>/\<type\>/\<name\>' 'POST'
 * 请求头 'Authorization', 'X-Mime-Type'
 * 请求体 整个请求体就是文件
 
 注：type: 'uploaded_musics' | 'avatar'
+
+注：name: music的时候给一个有意义的值，可重复。avatar可以随意给但是不能缺省，推荐'default'
+
 
 res:
 
