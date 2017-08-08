@@ -442,7 +442,7 @@ def add_assets(username, type, music_name):
     if type == 'uploaded_musics':
         result = {
             '_id': inserted_id,
-            'name': music_name,
+            'music_name': music_name,
             'url': url
         }
         return json.dumps(result, default=oid_handler), 200, regular_req_headers
@@ -496,3 +496,13 @@ def speed_test_no_db(username):
         "time_cost": time.time() - pre_time
     }
     return json.dumps(ret, default=oid_handler), 200, regular_req_headers
+
+
+@app.route('/api/v1/music/<id>')
+def get_music_by_id(id):
+    result = db['_musics'].find_one({
+        '_id': bson.ObjectId(id)
+    })
+    if result == None:
+        return _bad_request, 400, regular_req_headers
+    return json.dumps(result, default=oid_handler), 200, regular_req_headers

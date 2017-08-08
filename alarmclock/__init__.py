@@ -23,15 +23,13 @@ from common import oid_handler
 @app.route('/api/v1/alarm_clock', methods=['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-@check_req_body_wrapper('title', 'time', 'repeat', 'music_id', 'duration_level',
-                        'nap_level', 'volume_level', 'bind_to_nest', 'willing_music',
+@check_req_body_wrapper('title', 'time', 'repeat', 'music_id', 'nap', 'shock', 'bind_to_nest', 'willing_music',
                         'willing_text')
 def new_alarm_clock(username):
     json_req_data = json.loads(request.data)
     try:
         # 新建
-        keys = ['title', 'time', 'repeat', 'music_id', 'duration_level',
-                'nap_level', 'volume_level', 'bind_to_nest', 'willing_music',
+        keys = ['title', 'time', 'repeat', 'music_id', 'nap', 'shock', 'bind_to_nest', 'willing_music',
                 'willing_text']
         
         values = map(lambda key: json_req_data[key], keys)

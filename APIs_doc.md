@@ -429,56 +429,53 @@ req:
 req:
 ```json
 {
-    "title" : "waaaaaaa",
-    "repeat" : [
-        0,
-        1,
-        3,
-        5,
-        6
-    ],
-    "music_id" : "",
-    "duration_level" : 1,
-    "volume_level" : 1,
-    "nap_level" : 1,
-    "bind_to_nest" : "",
-    "willing_music" : true,
-    "willing_text" : true,
-    "time" : [
-        7,
-        0
-    ]
+	"title":"AAA",
+	"time":[7,0],
+	"repeat":[1,2,3],
+	"music_id":"5989ebfd9ccbae31ae89dcd7",
+	"nap": true,
+	"shock": true,
+	"bind_to_nest": "",
+	"willing_music": true,
+	"willing_text": true
 }
 ```
 
 res:
 ```json
 {
-    "title": "waaaaaaa",
+    "title": "AAA",
     "time": [
         7,
         0
     ],
     "repeat": [
-        0,
         1,
-        3,
-        5,
-        6
+        2,
+        3
     ],
-    "music_id": "",
-    "duration_level": 1,
-    "nap_level": 1,
-    "volume_level": 1,
+    "music_id": "5989ebfd9ccbae31ae89dcd7", // 会有接口允许你根据id获取响应信息(url, name)
+    "nap": true,
+    "shock": true,
     "bind_to_nest": "",
     "willing_music": true,
     "willing_text": true,
-    "created_time": 1500775910,
+    "created_time": 1502182372,
     "owner": "far",
-    "_id": "59747666f6ded6056e2499ec"
+    "_id": "5989ec64f6ded620ef411fef"
 }
 ```
 
+##### 根据id 获取音乐
+* url '/api/v1/music/\<id\>' 'GET'
+* 请求头 'Authorization'
+res:
+```json
+{
+    "music_name": "wangchengyi",
+    "url": "http://......."
+}
+```
 
 ##### 根据id 获取
 * url '/api/v1/alarm_clock/\<id\>' 'GET'
