@@ -485,3 +485,14 @@ def speed_test(username):
         "time_cost": time.time() - pre_time
     }
     return json.dumps(ret, default=oid_handler), 200, regular_req_headers
+
+
+@app.route('/api/v1/test/speed_test/no_db')
+@check_header_wrapper('authorization')
+@auth_wrapper
+def speed_test(username):
+    pre_time = time.time()
+    ret = {
+        "time_cost": time.time() - pre_time
+    }
+    return json.dumps(ret, default=oid_handler), 200, regular_req_headers
