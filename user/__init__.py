@@ -490,7 +490,7 @@ def speed_test(username):
 @app.route('/api/v1/test/speed_test/no_db')
 @check_header_wrapper('authorization')
 @auth_wrapper
-def speed_test(username):
+def speed_test_no_db(username):
     pre_time = time.time()
     ret = {
         "time_cost": time.time() - pre_time
