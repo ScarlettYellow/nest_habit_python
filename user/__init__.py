@@ -378,10 +378,11 @@ def add_assets(username, type, music_name):
     config = Config(qy_access_key, qy_secret_access_key)
     service = QingStor(config)
     buckets = service.list_buckets('pek3a')['buckets']
+    print(buckets)
     
     # 获取业务用 bucket
-    [bucket_info] = filter(lambda bucket: bucket['name'] == 'nesthabit', buckets)
-    bucket = service.Bucket('nesthabit', 'pek3a')
+    [bucket_info] = filter(lambda bucket: bucket['name'] == 'nest-habit', buckets)
+    bucket = service.Bucket('nest-habit', 'pek3a')
     
     # 随机一个文件名
     if type == 'uploaded_musics':
@@ -393,10 +394,12 @@ def add_assets(username, type, music_name):
             'error': 'Invalid operation!'
         }), 400, regular_req_headers
     filename = mimetypes.guess_extension(request.headers.get('x-mime-type'))
-    filename = '/%s/%s%s' % (base, str(random.randint(1, 1E15)), filename)
+    filename = '%s/%s%s' % (base, str(random.randint(1, 1E15)), filename)
     
     # 上传这个文件
-    bucket.put_object(filename, body=request.data)
+    result = bucket.put_object(filename, body=request.data)
+    
+    print(result)
     
     # 组装 URL
     url = bucket_info['url'] + filename
@@ -498,7 +501,7 @@ def speed_test_no_db(username):
     return json.dumps(ret, default=oid_handler), 200, regular_req_headers
 
 
-@app.route('/api/v1/music/<id>')
+@app.route('/api/v1/music/<id>', methods = ['GET'])
 def get_music_by_id(id):
     result = db['_musics'].find_one({
         '_id': bson.ObjectId(id)
