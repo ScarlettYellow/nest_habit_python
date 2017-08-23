@@ -22,7 +22,7 @@ from common import oid_handler
 @app.route('/api/v1/punch', methods=['POST'])
 @check_header_wrapper('authorization')
 @auth_wrapper
-@check_req_body_wrapper('target_nest')
+@check_req_body_wrapper('target_nest', 'comment')
 def punch(username):
     # 今天凌晨的时间戳
     # start_timestamp = math.floor(datetime.datetime.timestamp(datetime.datetime.utcnow()) / 24 / 3600)
@@ -54,6 +54,7 @@ def punch(username):
     
     data_to_insert = {
         'target_nest': bson.ObjectId(json_data['target_nest']),
+        'comment': bson.ObjectId(json_data['comment']),
         'operate_time': datetime.datetime.utcnow(),
         'username': username,
         'day': datetime.datetime.utcnow().strftime('%Y%m%d')

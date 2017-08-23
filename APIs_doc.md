@@ -537,8 +537,15 @@ res:
 
 
 req:
-
-我要先恢复数据库
+{
+	"music_id":"5989e8aff6ded60d17582591", // 如果是录音，请上传录音文件并获取id放在这里
+	"text":"asadfgh", // 如果是文字请提供此项
+	"target_username":"far", // 目标用户
+    "target_alarm_clock":"5989e8aff6ded60d17582591", // 目标闹钟的id
+    "start_time":"", // 开始时间戳
+    "end_time":"",//结束时间戳
+    "from_nest":"(id)" // 来自哪个鸟窝的提醒，注意在使用本api前确定某用户是否有绑定到指定鸟窝的闹钟，从而确定能否设置提醒
+}
 
 res:
 
