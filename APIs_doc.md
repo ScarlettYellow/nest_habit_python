@@ -631,7 +631,8 @@ res:
 req:
 ```
 {
-    "target_nest": "" //nest id
+    "target_nest": "" //nest id,
+    "comment": "" // 文字消息内容
 }
 ```
 
