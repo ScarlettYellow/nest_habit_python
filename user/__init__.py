@@ -402,7 +402,7 @@ def add_assets(username, type, music_name):
     print(result)
     
     # 组装 URL
-    url = bucket_info['url'] + filename
+    url = bucket_info['url'] + '/' + filename
     
     if type == 'uploaded_musics':
         # 更新数据库
