@@ -658,8 +658,10 @@ res
 ```js
 {
     'days': [
-        '%Y%m%d',
-        '%Y%m%d',
+        {
+            "day": "20170830",
+            "comment": "aaaaaaa"
+        },
         ...
     ]
 }
