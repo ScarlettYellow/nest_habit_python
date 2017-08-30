@@ -469,7 +469,7 @@ def get_punches(username, nest_id):
     
     punches = list((c for c in cursor))
     
-    days = list(map(lambda punch: punch['day'], punches))
+    days = list(map(lambda punch: ({'day': punch['day'], 'comment': punch['comment']}), punches))
     
     return json.dumps({
         'days': days

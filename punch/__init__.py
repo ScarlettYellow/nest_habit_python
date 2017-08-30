@@ -54,7 +54,7 @@ def punch(username):
     
     data_to_insert = {
         'target_nest': bson.ObjectId(json_data['target_nest']),
-        'comment': bson.ObjectId(json_data['comment']),
+        'comment': json_data['comment'],
         'operate_time': datetime.datetime.utcnow(),
         'username': username,
         'day': datetime.datetime.utcnow().strftime('%Y%m%d')
